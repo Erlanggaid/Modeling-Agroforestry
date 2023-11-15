@@ -1,0 +1,121 @@
+label,variable,distribution,lower,upper
+Seedling Cost Rubber (Rp),seedling_cost_rubber, posnorm ,2800000,6000000
+Seedling Cost Rubber (Rp) (Agroforestry I),seedling_cost_rubber_ag, posnorm ,1820000,2700000
+Planting Cost (Rp),planting_cost,posnorm,700000,1200000
+Herbicide Cost Rubber (Rp),herbicide_cost_rubber, posnorm ,460000,2220000
+Land Clearing Cost Rubber (Rp),land_clearing_cost_rubber, posnorm ,4400000,18750000
+Fertilizer Cost for Rubber (Rp) (Agroforestry I),fertilizer_cost_rubber_ag, posnorm ,525000,4600000
+Fertilizing Cost for Rubber (Rp),fertilizing_cost_rubber, posnorm ,100000,600000
+Fertilizer + Fertilizing Cost Rubber(Rp) (Agroforestry I),fertilizer_cost_rb_ag, posnorm ,625000,5200000
+Fertilizer Cost for Rubber (Rp),fertilizer_cost_rubber, posnorm ,1050000,3850000
+Harvesting Cost (Durian Areca) (Rp) (Agroforestry I),harvesting_cost_ag,posnorm,1500000,4200000
+Harvesting Cost (Archidendron j. and Parkia s.) (Rp) (Agroforestry II),harvesting_cost_ag2,posnorm,200000,600000
+Spraying Herbicide Cost (Rp),spraying_cost_rubber, posnorm ,100000,480000
+Equipment Cost per Year (3 year replacement),equipment_cost_maintenance_3, posnorm ,370000,690000
+Equipment Cost per Year (5 year replacement),equipment_cost_maintenance_5, posnorm ,1040000,2200000
+Equipment Cost Installment (Rp),equipment_cost_installment, posnorm ,1660000,3190000
+Equipment Cost Basic (Rp),equipment_cost_basic, posnorm ,720000,1300000
+Harvesting Cost for Treatment S. Acid (Rp),harvesting_equipment_treatment_rubber, posnorm ,300000,420000
+Harvesting Cost per year (Rp),harvesting_cost_rubber, posnorm ,19200000,36000000
+Transportation Cost for Harvesting (Rp),transportation_cost,posnorm,960000,1800000
+Rubber production (Kg) (Agroforestry I),rubber_yield_ag, posnorm ,1920,2400
+Percentation Mature Yield rubber (%),mature_rubber_yield_est,posnorm,70,90
+Percentation Immature Yield rubber (%),immature_rubber_yield_est,posnorm,40,60
+Time To reach Immature (First Yield) rubber (Years),immature_rubber_est,posnorm,6,7
+Time To reach Mature rubber (Years),mature_rubber_est,posnorm,10,11
+Maximum Estimation Yield rubber (Kg),max_rubber_harvest,posnorm,3840,7200
+Maximum Estimation Yield rubber (Kg),max_rubber_ag_harvest,posnorm,1920,2400
+Rubber production (Kg),rubber_yield, posnorm ,3840,7200
+Rubber price (Rp),rubber_price, posnorm ,4000,10000
+Benefit land clearing from wood (Rp),benefit_land_clearing,posnorm,2000000,6000000
+Time To reach Immature (First Yield) (Area) (Years),immature_pn_est,posnorm,3,4
+Time To reach Mature (Areca) (Years),mature_pn_est,posnorm,6,7
+Maximum Palm Estimation Yield (Kg),max_pn_harvest,posnorm,2300,2500
+Pinang production (Kg),pinang_yield, posnorm ,2300,2500
+variation seedling cost,var_seedling,const,5,5
+variation land clearing cost,var_landclearing,const,5,5
+Seedling Cost Durian (Rp),seedling_cost_durian, posnorm ,1680000,5600000
+Seedling Cost Areca (Rp),seedling_cost_pinang, posnorm ,690000,1250000
+Areca price (Rp/kg),pinang_price, posnorm ,10000,15000
+Durian price (Rp/pcs),durian_price, posnorm ,15000,30000
+Time To reach Immature  Durian (First Yield) (Years),immature_dr_est,const,8,8
+Time To reach Mature Durian (Years),mature_dr_est,const,20,20
+Maximum Durian Estimation Yield (Years),max_dr_harvest,posnorm,1400,3360
+Durian Production (Fruits),durian_yield,posnorm,1400,3360
+Variation CV,var_CV,const,20,20
+Percentation Immature Yield Areca (%),immature_pn_yield_est,posnorm,40,60
+Percentation Mature Yield Areca (%),mature_pn_yield_est,posnorm,70,80
+Percentation Mature Yield  Durian(%),mature_dr_yield_est,posnorm,70,80
+Percentation Immature Yield Durian (%),immature_dr_yield_est,posnorm,40,60
+Areca risk (%),pinang_risk,tnorm_0_1,0.1,0.5
+Rubber risk (%),rubber_risk,tnorm_0_1,0.1,0.5
+Durian risk (%),durian_risk,tnorm_0_1,0.1,0.5
+Areca yield risk (%),yield_pinang_risk,posnorm,0.2,0.7
+Durian yield risk (%),yield_durian_risk,posnorm,0.05,0.7
+Rubber yield risk (%),yield_rubber_risk,posnorm,0.05,0.5
+Time To reach Immature (First Yield) (Archidendron) (Years),immature_jn_est,posnorm,7,8
+Time To reach Mature (Archidendron) (Years),mature_jn_est,posnorm,17,18
+Maximum Archidendron Estimation Yield (Kg),max_jn_harvest,posnorm,200,2000
+variation harvesting cost,var_harvest,const,0,0
+variation maintenance cost,var_maintenance,const,12,12
+Transportation cost for monitoring before harvesting (Rp),monitoring_cost,posnorm,240000,360000
+Archidendron j (Jengkol) Price (Rp),jengkol_price, posnorm ,3000,5000
+Parkia s. (Petai) price (Rp),petai_price, posnorm ,10000,20000
+Time To reach Immature (First Yield) Parkia (Years),immature_pt_est,posnorm,10,11
+Time To reach Mature Parkia (Years),mature_pt_est,posnorm,22,23
+Maximum Parkia Estimation Yield (Kg),max_pt_harvest,posnorm,500,3000
+Life spans (Years),n_years,const,25,25
+Discount rate (%),discount_rate,posnorm,4,15
+Percentation Mature Yield Parkia (%),mature_pt_yield_est,posnorm,70,80
+Percentation Immature Yield Parkia (%),immature_pt_yield_est,posnorm,30,60
+Percentation Mature Yield  Archidendron (%),mature_jn_yield_est,posnorm,70,80
+Percentation Immature Yield Archidendron  (%),immature_jn_yield_est,posnorm,30,60
+Parkia yield (Kg),petai_yield,posnorm,500,3000
+Archidendron yield (Kg),jengkol_yield,posnorm,200,2000
+Parkia risk (%),petai_risk,tnorm_0_1,0.1,0.5
+Archidendron risk (%),jengkol_risk,tnorm_0_1,0.1,0.5
+Parkia yield risk (%),yield_petai_risk,posnorm,0.05,0.6
+Archidendron yield risk (%),yield_jengkol_risk,posnorm,0.05,0.5
+Chili Price (Rp),chilli_price,posnorm,12000,20000
+Chili Yield (Kg),chilli_yield,posnorm,250,400
+Planting Cost Cassava (Rp),planting_cost_chilli,posnorm,500000,1500000
+Harvesting Cost Chili (Rp),harvesting_cost_chilli,posnorm,1000000,1500000
+Cassava Price (Rp/Kg),cassava_price,posnorm,3000,5000
+Cassava Yield (Kg),cassava_yield,posnorm,2000,3000
+Planting Cost  Cassava (Rp),planting_cost_cassava,posnorm,500000,1500000
+Harvesting Cost Cassava (Rp),harvesting_cost_cassava,posnorm,200000,500000
+Banana Price (Rp/Kg),banana_price,posnorm,30000,80000
+Banana Yield (Bunch),banana_yield,posnorm,50,100
+Seedling Cost Banana (Rp/Pcs),seedling_cost_banana,posnorm,5000,10000
+Planting Cost  Banana (Rp),planting_cost_banana,posnorm,500000,1500000
+Harvesting Cost Banana (Rp),harvesting_cost_banana,posnorm,500000,1000000
+Sondrium k. yield risk (m3),wood_sentul_yield,posnorm,10,50
+Sondrium k. price (Rp/m3),wood_sentul_price,posnorm,500000,900000
+Percentation Mature Yield  Sondrium (%),mature_sn_yield_est,posnorm,60,80
+Percentation Immature Yield Sondrium (%),immature_sn_yield_est,posnorm,30,50
+Maximum Sondrium Estimation Yield (Kg),max_sn_harvest,posnorm,4000,5000
+Time To reach Immature (First Yield) (Sondrium) (Years),immature_sn_est,posnorm,8,9
+Time To reach Mature (Sondrium) (Years),mature_sn_est,posnorm,17,18
+Sondrium k. risk (%),sentul_risk,tnorm_0_1,0.1,0.5
+Sondrium k. yield risk (%),yield_sentul_risk,posnorm,0.05,0.3
+Sondrium k. Fruits Yield (Kg),sentul_yield,posnorm,4000,5000
+Sondrium k. price (Rp/Kg),sentul_price,posnorm,5000,10000
+Variation Cost,CV_cost,posnorm,10,20
+Variation Rubber Price,CV_rubber_price,posnorm,40,100
+Variation Durian Price,CV_durian_price,posnorm,5,10
+Variation Areca Price,CV_areca_price,posnorm,10,40
+Variation Parkia Price,CV_parkia_price,posnorm,5,20
+Variation Archidendron Price,CV_archidendron_price,posnorm,5,20
+Variation Sondrium Price,CV_sondrium_price,posnorm,5,10
+Variation Maize Price,CV_maize_price,posnorm,10,30
+Variation Risk,CV_risk,posnorm,2,12
+Variation Chili Price,CV_chili_price,posnorm,10,40
+Variation Banana Price,CV_banana_price,posnorm,5,10
+Variation Cassava Price,CV_cassava_price,posnorm,5,10
+Rp to IDR,cur_change,const,"15141.30	","15141.30	"
+Cassava Risk (%),cassava_risk,tnorm_0_1,0.05,0.2
+Banana Risk (%),banana_risk,tnorm_0_1,0.1,0.5
+Chili Risk (%),chili_risk,tnorm_0_1,0.1,0.6
+Percentage Yield Loss Banana (%),yield_banana_risk,posnorm,0.2,1
+Percentage Yield Loss Cassava (%),yield_cassava_risk,posnorm,0.3,0.5
+Percentage Yield Loss Chili (%),yield_chili_risk,posnorm,0.3,1
