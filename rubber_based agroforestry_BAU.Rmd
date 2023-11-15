@@ -1,0 +1,1225 @@
+---
+title: "Farming Sytems Model Simulation in Lebung Itam and Rambai Village"
+author: "Erlangga"
+date: "6/30/2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,error=FALSE}
+library(readr)
+mod <- read.csv("input_rubber_based.csv", header = TRUE, sep = ",")
+knitr::kable(mod, "pipe", caption = "Input Table")
+```
+
+
+#### Model Function 1 (Rubber Monoculture vs Rubber-Areca catechu and Durio zibethinus)
+```{r}
+library(decisionSupport)
+
+first_decision_function <- function(x, varnames) {
+  
+  # Define each variable as vectors of 25 values 
+  
+  # Corresponding to 25 years of simulation
+  
+  n_years <- 25
+
+  # Cost Variables
+  
+  seedling.cost.rubber <- rep(0, n_years)
+  planting.cost <- rep(0, n_years)
+  land.clearing.rubber <- rep(0, n_years)
+  herbicide.cost.rubber <- rep(0, n_years)
+  fertilizer.cost.rubber <- rep(0, n_years)
+  fertilizing.cost <- rep(0, n_years)
+  harvest.cost.rubber <- rep(0, n_years)
+  equipment.cost <- rep(0, n_years)
+  harvesting.cost.rubber <- rep(0, n_years)
+  transportation.cost.rubber <- rep(0, n_years)
+  monitoring.cost.rubber <- rep(0, n_years)
+  spraying.cost.rubber <- rep(0, n_years)
+  
+  seedling.cost.rubber.ag <- rep(0, n_years)
+  harvesting.cost.rubber.ag <- rep(0, n_years)
+  fertilizer.cost.rb.ag <- rep(0, n_years)
+  harvesting.cost.rb.ag <- rep(0, n_years)
+  harvesting.cost.rb.ag2 <- rep(0, n_years)
+
+  seedling.cost.pn <- rep(0, n_years)
+  seedling.cost.dr <- rep(0, n_years)
+  
+  planting.cost.chilli <- rep(0, n_years)
+  harvesting.cost.chilli <- rep(0, n_years)
+  planting.cost.cassava <- rep(0, n_years)
+  harvesting.cost.cassava <- rep(0, n_years)
+  
+  seedling.cost.banana <- rep(0, n_years)
+  planting.cost.banana <- rep(0, n_years)
+  harvesting.cost.banana <- rep(0, n_years)
+  
+  # Benefit Variables
+  
+  benefit.land.clearing.rubber <- rep(0, n_years)
+  rubber.price <- rep(0, n_years)
+  
+  chilli.price <- rep(0, n_years)
+  chilli.yield <- rep(0, n_years)
+  banana.price <- rep(0, n_years)
+  banana.yield <- rep(0, n_years)
+  cassava.price <- rep(0, n_years)
+  cassava.yield <- rep(0, n_years)
+  
+  pt.price <- rep(0, n_years)
+  jn.price <- rep(0, n_years)
+  pn_yield <- rep(0, n_years)
+  dr_yield <- rep(0, n_years)
+  dr.price <- rep(0, n_years)
+  pn.price <- rep(0, n_years)
+  
+  # Risk Variables
+  
+  yield.petai.risk <- rep(0, n_years)
+  yield.jengkol.risk <- rep(0, n_years)
+  yield.durian.risk <- rep(0, n_years)
+  yield.pinang.risk <- rep(0, n_years)
+  yield.rubber.risk <- rep(0, n_years)
+  
+  yield.cassava.risk <- rep(0, n_years)
+  yield.chili.risk <- rep(0, n_years)
+  yield.banana.risk <- rep(0, n_years)
+  
+  # Simulate the chance of risk events occurring during the simulation period
+  
+  durian.risk <- chance_event(chance = durian_risk, value_if = 1, n_years)
+  pinang.risk <- chance_event(chance = pinang_risk, value_if = 1, n_years)
+  rubber.risk <- chance_event(chance = rubber_risk,  value_if = 1, n_years)
+  
+  durian.risk[1:n_years] <- vv(durian_risk, CV_risk, n_years)
+  pinang.risk[1:n_years] <- vv(pinang_risk, CV_risk, n_years)
+  rubber.risk[1:n_years] <- vv(rubber_risk, CV_risk, n_years)
+  
+  yield.durian.risk[1:n_years] <- vv(yield_durian_risk, CV_risk, n_years)
+  yield.pinang.risk[1:n_years] <- vv(yield_pinang_risk, CV_risk, n_years)
+  yield.rubber.risk[1:n_years] <- vv(yield_rubber_risk, CV_risk, n_years)
+  
+  cassava.risk <- chance_event(chance = cassava_risk, value_if = 1, n_years)
+  chili.risk <- chance_event(chance = chili_risk, value_if = 1, n_years)
+  banana.risk <- chance_event(chance = banana_risk, value_if = 1, n_years)
+  
+  cassava.risk[1:n_years] <- vv(cassava_risk, CV_risk, n_years)
+  chili.risk[1:n_years] <- vv(chili_risk, CV_risk, n_years)
+  banana.risk[1:n_years] <- vv(banana_risk, CV_risk, n_years)
+  
+  yield.cassava.risk[1:n_years] <- vv(yield_cassava_risk, CV_risk, n_years)
+  yield.chili.risk[1:n_years] <- vv(yield_chili_risk, CV_risk, n_years)
+  yield.banana.risk[1:n_years] <- vv(yield_banana_risk, CV_risk, n_years)
+  
+  # Calculate the system cost of rubber
+    
+  # Seedling cost rubber 
+  seedling.cost.rubber[1] <- vv(seedling_cost_rubber, CV_cost, 1)
+  seedling.cost.rubber[2:n_years] <- 0
+  
+  # Planting Cost rubber 
+  planting.cost[1] <- vv(planting_cost, CV_cost, 1)
+  planting.cost[2:n_years] <- 0
+  
+  # Land clearing rubber
+  land.clearing.rubber[1] <- vv(land_clearing_cost_rubber, CV_cost, 1)
+  land.clearing.rubber[2:n_years] <- 0
+  
+  # Benefits of Land Clearing from Wood Harvesting
+  benefit.land.clearing.rubber[1] <- vv(benefit_land_clearing, var_CV, 1)
+  benefit.land.clearing.rubber[2:n_years] <- 0
+  
+  # Herbicide cost rubber
+  herbicide.cost.rubber[1:n_years] <- vv(herbicide_cost_rubber, CV_cost, n_years)
+  
+  # Spraying cost rubber
+  spraying.cost.rubber[1:n_years] <- vv(spraying_cost_rubber, CV_cost, n_years)
+  
+  # Fertilizer cost rubber
+  fertilizer.cost.rubber[1:2] <- vv(fertilizer_cost_rubber, CV_cost, 2)
+  fertilizer.cost.rubber[3:n_years] <- 0
+  
+  # Fertilizing cost rubber
+  fertilizing.cost[1:2] <- vv(fertilizing_cost_rubber, CV_cost, 2)
+  fertilizing.cost[3:n_years] <- 0
+  
+  # Transportation cost - monitoring the field before harvesting
+  monitoring.cost.rubber[1:5] <- vv(monitoring_cost, CV_cost, 5)
+  monitoring.cost.rubber[6:n_years] <- 0
+  
+  # Equipment cost including 3 and 5 year replacement
+  equipment.cost[1] <- vv(equipment_cost_basic, CV_cost, 1)
+  equipment.cost[2:5] <- 0
+  equipment.cost[6] <- vv(equipment_cost_installment, CV_cost, 1)
+  equipment.cost[7:9] <- 0 
+  equipment.cost[10] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[11] <- 0 
+  equipment.cost[12] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[13:15] <- 0 
+  equipment.cost[16] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[17] <- 0 
+  equipment.cost[18] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[19:21] <- 0 
+  equipment.cost[22] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[23:25] <- 0 
+  
+  # Harvest cost rubber including shadow price family labour cost
+  harvesting.cost.rubber[1:5] <- 0
+  harvesting.cost.rubber[6:n_years] <- vv(harvesting_cost_rubber, CV_cost, n_years - 5)
+  
+  # Transportation cost for harvesting rubber
+  transportation.cost.rubber[1:5] <- 0
+  transportation.cost.rubber[6:n_years] <- vv(transportation_cost, CV_cost, n_years - 5)
+  
+  # Harvesting cost rubber (including Post Harvest Treatment - sulfuric acid)
+  harvest.cost.rubber[1:5] <- 0
+  harvest.cost.rubber[6:n_years] <- vv(harvesting_equipment_treatment_rubber, CV_cost, n_years - 5)
+  
+  # Rubber price
+  rubber.price[1:5] <- 0
+  rubber.price[6:n_years] <- vv(rubber_price, CV_rubber_price, n_years - 5)
+  
+  # Rubber yield using Gompertz curve
+  
+  rb_yield <- gompertz_yield(max_harvest = max_rubber_harvest, 
+                            time_to_first_yield_estimate = immature_rubber_est, 
+                            time_to_second_yield_estimate = mature_rubber_est,
+                            first_yield_estimate_percent = immature_rubber_yield_est,
+                            second_yield_estimate_percent = mature_rubber_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  rb_yield_risk <- rb_yield*(1-rubber.risk*yield.rubber.risk)
+  
+  tot_rb_benefit <- rb_yield_risk * rubber.price
+  
+  
+  # Chili and Cassava at first year, Banana at the second year of system
+  
+  chilli.yield[1] <- vv(chilli_yield, CV_chili_price, 1)
+  chilli.yield[2:n_years] <- 0
+  
+  chilli.price[1] <- vv(chilli_price, var_CV, 1)
+  chilli.price[2:n_years] <- 0
+  
+  planting.cost.chilli[1] <- vv(planting_cost_chilli, CV_cost, 1)
+  planting.cost.chilli[2:n_years] <- 0
+  
+  harvesting.cost.chilli[1] <- vv(harvesting_cost_chilli, CV_cost, 1)
+  harvesting.cost.chilli[2:n_years] <- 0
+  
+  planting.cost.cassava[1] <- vv(planting_cost_cassava, CV_cost, 1)
+  planting.cost.cassava[2:n_years] <- 0
+  
+  harvesting.cost.cassava[1] <- vv(harvesting_cost_cassava, CV_cost, 1)
+  harvesting.cost.cassava[2:n_years] <- 0
+  
+  cassava.price[1] <- vv(cassava_price, CV_cassava_price, 1)
+  cassava.price[2:n_years] <- 0
+  
+  cassava.yield[1] <- vv(cassava_yield, var_CV, 1)
+  cassava.yield[2:n_years] <- 0
+  
+  seedling.cost.banana <- vv(seedling_cost_banana, CV_cost, 1)
+  seedling.cost.banana[2:n_years] <- 0
+  
+  planting.cost.banana[1] <- 0
+  planting.cost.banana[2] <- vv(planting_cost_banana, CV_cost, 1)
+  planting.cost.banana[3:n_years] <- 0
+  
+  harvesting.cost.banana[1] <- 0
+  harvesting.cost.banana[2] <- vv(harvesting_cost_banana, CV_cost, 1)
+  harvesting.cost.banana[3:n_years] <- 0
+  
+  banana.yield[1] <- 0
+  banana.yield[2] <- vv(banana_yield, var_CV, 1)
+  banana.yield[3:n_years] <- 0
+  
+  banana.price[1] <- 0
+  banana.price[2] <- vv(banana_price, CV_banana_price, 1)
+  banana.price[3:n_years] <- 0
+  
+  
+  chili_yield_risk <-  chilli.yield*(1- chili.risk*yield.chili.risk)
+
+  tot_chilli_benefit <- (chili_yield_risk* chilli.price) - planting.cost.chilli - harvesting.cost.chilli
+                           
+  cassava_yield_risk <- cassava_yield * (1- cassava.risk*yield.cassava.risk)
+  
+  tot_cassava_benefit <-  (cassava_yield_risk * cassava.price) - planting.cost.cassava - harvesting.cost.cassava
+  
+  banana_yield_risk <- banana.yield * (1- banana.risk*yield.banana.risk) 
+  
+  tot_banana_benefit <- (banana_yield_risk * banana.price) - seedling.cost.banana - planting.cost.banana - harvesting.cost.banana
+  
+
+  # Calculate Rubber agroforestry
+  
+  # The different  between agroforestry (Areca c. and Durio z.) and monoculture are only seedling quantity and fertilizer quantity.
+      
+  # Seedling cost rubber agroforestry 
+  
+  seedling.cost.rubber[1] <- vv(seedling_cost_rubber_ag, CV_cost, 1)
+  seedling.cost.rubber[2:n_years] <- 0
+  
+  # Fertilizer cost rubber
+  fertilizer.cost.rb.ag[1:2] <- vv(fertilizer_cost_rb_ag, CV_cost, 2)
+  fertilizer.cost.rb.ag[3:n_years] <- 0
+  
+
+  # Harvesting cost (Areca catechu and Durio zibethinus)
+  
+  harvesting.cost.rb.ag[1:3] <- 0
+  harvesting.cost.rb.ag[4:n_years] <- vv(harvesting_cost_ag, CV_cost, n_years - 3)  
+  
+  # Durian price
+  dr.price[1:8] <- 0
+  dr.price[9:n_years] <- vv(durian_price, CV_durian_price, n_years - 8)
+  
+  # Areca nut (pinang) price
+  pn.price[1:3] <- 0
+  pn.price[4:n_years] <- vv(pinang_price, CV_areca_price, n_years - 3)
+  
+  # Benefits of rubber agroforestry type 1
+  rb_ag_yield <- gompertz_yield(max_harvest = max_rubber_ag_harvest, 
+                            time_to_first_yield_estimate = immature_rubber_est, 
+                            time_to_second_yield_estimate = mature_rubber_est,
+                            first_yield_estimate_percent = immature_rubber_yield_est,
+                            second_yield_estimate_percent = mature_rubber_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  rb_ag_yield_risk <- rb_ag_yield*(1-rubber.risk*yield.rubber.risk)
+  
+  tot_rb_ag_benefit <- rb_ag_yield_risk * rubber.price
+  
+  # Durian Yield 
+  
+  dr_yield <- gompertz_yield(max_harvest = max_dr_harvest, 
+                            time_to_first_yield_estimate = immature_dr_est, 
+                            time_to_second_yield_estimate = mature_dr_est,
+                            first_yield_estimate_percent = immature_dr_yield_est,
+                            second_yield_estimate_percent = mature_dr_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0,
+                            no_yield_before_first_estimate = TRUE)
+    
+  dr_yield_risk <- dr_yield*(1- durian.risk*yield.durian.risk)
+  
+  tot_dr_benefit <- dr_yield_risk * dr.price
+  
+  # Areca nut (pinang) yield
+    
+  pn_yield <- gompertz_yield(max_harvest = max_pn_harvest, 
+                            time_to_first_yield_estimate = immature_pn_est, 
+                            time_to_second_yield_estimate = mature_pn_est,
+                            first_yield_estimate_percent = immature_pn_yield_est,
+                            second_yield_estimate_percent = mature_pn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  pn_yield_risk <- pn_yield*(1-pinang.risk*yield.pinang.risk)
+  
+  tot_pn_benefit <- pn_yield_risk * pn.price
+  
+  # Calculate the NPV of rubber
+    
+  total_rb_benefit <- (tot_rb_benefit + benefit.land.clearing.rubber - seedling.cost.rubber - planting.cost - 
+                       land.clearing.rubber - fertilizer.cost.rubber - fertilizing.cost - equipment.cost - 
+                       harvest.cost.rubber - harvesting.cost.rubber - spraying.cost.rubber - herbicide.cost.rubber -
+                       monitoring.cost.rubber - transportation.cost.rubber + tot_banana_benefit + 
+                       tot_cassava_benefit + tot_chilli_benefit)/cur_change
+  
+  # Calculate The NPV Rubber-Areca catechu and Durio zibethinus
+   
+  total_rb_ag_benefit <- ((tot_rb_ag_benefit + benefit.land.clearing.rubber + tot_dr_benefit + tot_pn_benefit) - 
+                           seedling.cost.rubber - planting.cost - land.clearing.rubber - fertilizer.cost.rb.ag - 
+                           fertilizing.cost - equipment.cost - transportation.cost.rubber -  
+                           monitoring.cost.rubber - spraying.cost.rubber -
+                           harvest.cost.rubber - harvesting.cost.rubber - harvesting.cost.rb.ag)/cur_change
+  
+  # NPV comparison
+  
+  NPV_rb <- discount(total_rb_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  
+  NPV_rb_ag <- discount(total_rb_ag_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  
+  # Benefit of choosing rubber-Areca catechu and Durio zibethinus over rubber monoculture
+  tradeoff_benefit <- NPV_rb_ag - NPV_rb
+  
+  # Final NPV of the decision to choose
+  NPV_tradeoff <- discount(tradeoff_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  
+  # In the return list, one can indicate any outcome they wish to see from the model
+  return(list(trade_off = NPV_tradeoff,
+              rb_ag_NPV = NPV_rb_ag,
+              rb_NPV = NPV_rb,
+              Cash_Flow_Rubber = total_rb_benefit,
+              Cash_Flow_Rubber_Pinang_Durian = total_rb_ag_benefit))
+}
+
+```
+
+
+
+#### Model Function 2 (Rubber Monoculture vs Rubber-Archidendron jiringa and Parkia speciosa)
+```{r}
+
+second_decision_function <- function(x, varnames) {
+  
+  # Define each variable as vectors of 25 values 
+  
+  # Corresponding to 25 years of simulation
+  
+  n_years <- 25
+
+  # Cost Variables
+  seedling.cost.rubber <- rep(0, n_years)
+  planting.cost <- rep(0, n_years)
+  land.clearing.rubber <- rep(0, n_years)
+  herbicide.cost.rubber <- rep(0, n_years)
+  fertilizer.cost.rubber <- rep(0, n_years)
+  fertilizing.cost <- rep(0, n_years)
+  harvest.cost.rubber <- rep(0, n_years)
+  equipment.cost <- rep(0, n_years)
+  harvesting.cost.rubber <- rep(0, n_years)
+  transportation.cost.rubber <- rep(0, n_years)
+  monitoring.cost.rubber <- rep(0, n_years)
+  benefit.land.clearing.rubber <- rep(0, n_years)
+  rubber.price <- rep(0, n_years)
+  spraying.cost.rubber <- rep(0, n_years)
+  
+  harvesting.cost.rb.ag2 <- rep(0, n_years)
+  
+  planting.cost.chilli <- rep(0, n_years)
+  harvesting.cost.chilli <- rep(0, n_years)
+  planting.cost.cassava <- rep(0, n_years)
+  harvesting.cost.cassava <- rep(0, n_years)
+  seedling.cost.banana <- rep(0, n_years)
+  planting.cost.banana <- rep(0, n_years)
+  harvesting.cost.banana <- rep(0, n_years)
+
+  # Benefit variables
+  
+  banana.price <- rep(0, n_years)
+  banana.yield <- rep(0, n_years)
+  cassava.price <- rep(0, n_years)
+  cassava.yield <- rep(0, n_years)
+  chilli.price <- rep(0, n_years)
+  chilli.yield <- rep(0, n_years)
+  
+  # Risk variables 
+  yield.rubber.risk <- rep(0, n_years)
+  yield.petai.risk <- rep(0, n_years)
+  yield.jengkol.risk <- rep(0, n_years)
+  
+  yield.cassava.risk <- rep(0, n_years)
+  yield.chili.risk <- rep(0, n_years)
+  yield.banana.risk <- rep(0, n_years)
+  
+  pt.price <- rep(0, n_years)
+  jn.price <- rep(0, n_years)
+  
+  # Simulate the chance of risk events occurring during the simulation period
+  
+  rubber.risk <- chance_event(chance = rubber_risk,  value_if = 1, n_years)
+  petai.risk <- chance_event(chance = petai_risk, value_if = 1, n_years)
+  jengkol.risk <- chance_event(chance = jengkol_risk, value_if = 1, n_years)
+  
+  rubber.risk[1:n_years] <- vv(rubber_risk, CV_risk, n_years)
+  petai.risk[1:n_years] <- vv(petai_risk, CV_risk, n_years)
+  jengkol.risk[1:n_years] <- vv(jengkol_risk, CV_risk, n_years)
+  
+  yield.rubber.risk[1:n_years] <- vv(yield_rubber_risk, CV_risk, n_years)
+  yield.petai.risk[1:n_years] <- vv(yield_jengkol_risk, CV_risk, n_years)
+  
+  cassava.risk <- chance_event(chance = cassava_risk, value_if = 1, n_years)
+  chili.risk <- chance_event(chance = chili_risk, value_if = 1, n_years)
+  banana.risk <- chance_event(chance = banana_risk, value_if = 1, n_years)
+  
+  cassava.risk <- chance_event(chance = cassava_risk, value_if = 1, n_years)
+  chili.risk <- chance_event(chance = chili_risk, value_if = 1, n_years)
+  banana.risk <- chance_event(chance = banana_risk, value_if = 1, n_years)
+  
+  cassava.risk[1:n_years] <- vv(cassava_risk, CV_risk, n_years)
+  chili.risk[1:n_years] <- vv(chili_risk, CV_risk, n_years)
+  banana.risk[1:n_years] <- vv(banana_risk, CV_risk, n_years)
+  
+  yield.cassava.risk[1:n_years] <- vv(yield_cassava_risk, CV_risk, n_years)
+  yield.chili.risk[1:n_years] <- vv(yield_chili_risk, CV_risk, n_years)
+  yield.banana.risk[1:n_years] <- vv(yield_banana_risk, CV_risk, n_years)
+  
+  # Calculate the system cost of rubber
+    
+  # Seedling cost
+  seedling.cost.rubber[1] <- vv(seedling_cost_rubber, CV_cost, 1)
+  seedling.cost.rubber[2:n_years] <- 0
+  
+  # Planting cost rubber 
+  planting.cost[1] <- vv(planting_cost, CV_cost, 1)
+  planting.cost[2:n_years] <- 0
+  
+  # Land clearing rubber
+  land.clearing.rubber[1] <- vv(land_clearing_cost_rubber, CV_cost, 1)
+  land.clearing.rubber[2:n_years] <- 0
+  
+  # Benefits of Land Clearing from Wood Harvesting
+  benefit.land.clearing.rubber[1] <- vv(benefit_land_clearing, var_CV, 1)
+  benefit.land.clearing.rubber[2:n_years] <- 0
+  
+  # Herbicide cost rubber
+  herbicide.cost.rubber[1:n_years] <- vv(herbicide_cost_rubber, CV_cost, n_years)
+  
+  # Spraying cost rubber
+  spraying.cost.rubber[1:n_years] <- vv(spraying_cost_rubber, CV_cost, n_years)
+  
+  # Fertilizer cost rubber
+  fertilizer.cost.rubber[1:2] <- vv(fertilizer_cost_rubber, CV_cost, 2)
+  fertilizer.cost.rubber[3:n_years] <- 0
+  
+  # Fertilizing cost rubber
+  fertilizing.cost[1:2] <- vv(fertilizing_cost_rubber, CV_cost, 2)
+  fertilizing.cost[3:n_years] <- 0
+  
+  # Transportation cost - monitoring before harvesting
+  monitoring.cost.rubber[1:5] <- vv(monitoring_cost, CV_cost, 5)
+  monitoring.cost.rubber[6:n_years] <- 0
+  
+  # Equipment cost including 3 and 5 year replacement
+  equipment.cost[1] <- vv(equipment_cost_basic, CV_cost, 1)
+  equipment.cost[2:5] <- 0
+  equipment.cost[6] <- vv(equipment_cost_installment, CV_cost, 1)
+  equipment.cost[7:9] <- 0 
+  equipment.cost[10] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[11] <- 0 
+  equipment.cost[12] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[13:15] <- 0 
+  equipment.cost[16] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[17] <- 0 
+  equipment.cost[18] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[19:21] <- 0 
+  equipment.cost[22] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[23:25] <- 0 
+  
+  # Harvest cost rubber 
+  harvesting.cost.rubber[1:5] <- 0
+  harvesting.cost.rubber[6:n_years] <- vv(harvesting_cost_rubber, CV_cost, n_years - 5)
+  
+  # Transportation cost for harvesting rubber
+  transportation.cost.rubber[1:5] <- 0
+  transportation.cost.rubber[6:n_years] <- vv(transportation_cost, CV_cost, n_years - 5)
+  
+  # Harvesting cost rubber (including Post Harvest Treatment - sulfuric acid)
+  harvest.cost.rubber[1:5] <- 0
+  harvest.cost.rubber[6:n_years] <- vv(harvesting_equipment_treatment_rubber, CV_cost, n_years - 5)
+  
+  # Rubber price
+  rubber.price[1:5] <- 0
+  rubber.price[6:n_years] <- vv(rubber_price, CV_rubber_price, n_years - 5)
+  
+  # Parkia speciosa price
+  pt.price[1:8] <- 0
+  pt.price[9:n_years] <- vv(petai_price, CV_areca_price, n_years - 8)
+  
+   # Archidendron jiringa price
+  jn.price[1:3] <- 0
+  jn.price[4:n_years] <- vv(jengkol_price, CV_archidendron_price, n_years - 3)
+  
+  # Harvesting cost Archidendron jiringa and Parkia speciosa
+  harvesting.cost.rb.ag2[1:4] <- 0
+  harvesting.cost.rb.ag2[5:n_years] <- vv(harvesting_cost_ag2, CV_cost, n_years - 4)
+  
+  # Archidendron jiringa yield using Gompertz curve
+  
+  jn_yield <- gompertz_yield(max_harvest = max_jn_harvest, 
+                            time_to_first_yield_estimate = immature_jn_est, 
+                            time_to_second_yield_estimate = mature_jn_est,
+                            first_yield_estimate_percent = immature_jn_yield_est,
+                            second_yield_estimate_percent = mature_jn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0,
+                            no_yield_before_first_estimate = TRUE)
+    
+  jn_yield_risk <- jn_yield*(1- jengkol.risk*yield.jengkol.risk)
+  
+  tot_jn_benefit <- jn_yield_risk * jn.price
+  
+  # Parkia speciosa yield using Gompertz curve
+    
+  pt_yield <- gompertz_yield(max_harvest = max_pt_harvest, 
+                            time_to_first_yield_estimate = immature_pt_est, 
+                            time_to_second_yield_estimate = mature_pt_est,
+                            first_yield_estimate_percent = immature_pt_yield_est,
+                            second_yield_estimate_percent = mature_pt_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  pt_yield_risk <- pt_yield*(1-petai.risk*yield.petai.risk)
+  
+  tot_pt_benefit <- pt_yield_risk * pt.price
+  
+  
+  # Chili and Cassava at first year, Banana at the second year of system
+  
+  chilli.yield[1] <- vv(chilli_yield, var_CV, 1)
+  chilli.yield[2:n_years] <- 0
+  
+  chilli.price[1] <- vv(chilli_price, CV_chili_price, 1)
+  chilli.price[2:n_years] <- 0
+  
+  planting.cost.chilli[1] <- vv(planting_cost_chilli, CV_cost, 1)
+  planting.cost.chilli[2:n_years] <- 0
+  
+  harvesting.cost.chilli[1] <- vv(harvesting_cost_chilli, CV_cost, 1)
+  harvesting.cost.chilli[2:n_years] <- 0
+  
+  planting.cost.cassava[1] <- vv(planting_cost_cassava, CV_cost, 1)
+  planting.cost.cassava[2:n_years] <- 0
+  
+  harvesting.cost.cassava[1] <- vv(harvesting_cost_cassava, CV_cost, 1)
+  harvesting.cost.cassava[2:n_years] <- 0
+  
+  cassava.price[1] <- vv(cassava_price, CV_cassava_price, 1)
+  cassava.price[2:n_years] <- 0
+  
+  cassava.yield[1] <- vv(cassava_yield, var_CV, 1)
+  cassava.yield[2:n_years] <- 0
+  
+  seedling.cost.banana <- vv(seedling_cost_banana, CV_cost, 1)
+  seedling.cost.banana[2:n_years] <- 0
+  
+  planting.cost.banana[1] <- 0
+  planting.cost.banana[2] <- vv(planting_cost_banana, CV_cost, 1)
+  planting.cost.banana[3:n_years] <- 0
+  
+  harvesting.cost.banana[1] <- 0
+  harvesting.cost.banana[2] <- vv(harvesting_cost_banana, CV_cost, 1)
+  harvesting.cost.banana[3:n_years] <- 0
+  
+  banana.yield[1] <- 0
+  banana.yield[2] <- vv(banana_yield, var_CV, 1)
+  banana.yield[3:n_years] <- 0
+  
+  banana.price[1] <- 0
+  banana.price[2] <- vv(banana_price, CV_banana_price, 1)
+  banana.price[3:n_years] <- 0
+  
+  
+  chili_yield_risk <-  chilli.yield*(1- chili.risk*yield.chili.risk)
+
+  tot_chilli_benefit <- (chili_yield_risk* chilli.price) - planting.cost.chilli - harvesting.cost.chilli
+                           
+  cassava_yield_risk <- cassava_yield * (1- cassava.risk*yield.cassava.risk)
+  
+  tot_cassava_benefit <-  (cassava_yield_risk * cassava.price) - planting.cost.cassava - harvesting.cost.cassava
+  
+  banana_yield_risk <- banana.yield * (1- banana.risk*yield.banana.risk) 
+  
+  tot_banana_benefit <- (banana_yield_risk * banana.price) - seedling.cost.banana - planting.cost.banana - harvesting.cost.banana
+  
+  # Benefits of rubber
+  rb_yield <- gompertz_yield(max_harvest = max_rubber_harvest, 
+                            time_to_first_yield_estimate = immature_rubber_est, 
+                            time_to_second_yield_estimate = mature_rubber_est,
+                            first_yield_estimate_percent = immature_rubber_yield_est,
+                            second_yield_estimate_percent = mature_rubber_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  rb_yield_risk <- rb_yield*(1-rubber.risk*yield.rubber.risk)
+  
+  tot_rb_benefit <- rb_yield_risk * rubber.price
+  
+  
+  # Calculate Total Benefit of Rubber Monoculture 
+    
+  total_rb_benefit <- (tot_rb_benefit + benefit.land.clearing.rubber - seedling.cost.rubber - planting.cost - 
+                       land.clearing.rubber - fertilizer.cost.rubber - fertilizing.cost - equipment.cost - 
+                       harvest.cost.rubber - harvesting.cost.rubber - spraying.cost.rubber - herbicide.cost.rubber -
+                       transportation.cost.rubber - monitoring.cost.rubber +
+                       tot_banana_benefit + tot_cassava_benefit + tot_chilli_benefit)/cur_change
+
+  # Benefit Rubber-Archidendron jiringa and Parkia speciosa 
+  total_rb_ag2_benefit <- (tot_rb_benefit + benefit.land.clearing.rubber + tot_pt_benefit + tot_jn_benefit 
+                           - seedling.cost.rubber - planting.cost - land.clearing.rubber - fertilizer.cost.rubber 
+                           - fertilizing.cost - equipment.cost - harvest.cost.rubber 
+                           - harvesting.cost.rubber - spraying.cost.rubber- herbicide.cost.rubber 
+                           - monitoring.cost.rubber - transportation.cost.rubber
+                           - harvesting.cost.rb.ag2 + tot_banana_benefit + tot_cassava_benefit + tot_chilli_benefit)/cur_change
+  
+  # NPV comparison
+  
+  NPV_rb <- discount(total_rb_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  NPV_rb_ag2 <- discount(total_rb_ag2_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  #  Benefit of choosing Rubber-Archidendron jiring and Parkia speciosa over rubber monoculture
+  
+  tradeoff_benefit <- NPV_rb_ag2 - NPV_rb
+  
+  # Final NPV of the decision to choose
+  NPV_tradeoff <- discount(tradeoff_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  
+  # In the return list, one can indicate any outcome they wish to see from the model
+  return(list(trade_off = NPV_tradeoff,
+              rb_ag2_NPV = NPV_rb_ag2,
+              rb_NPV = NPV_rb,
+              Cash_Flow_Rubber_Petai_Jengkol = total_rb_ag2_benefit,
+              Cash_Flow_Rubber = total_rb_benefit))
+}
+```
+
+
+#### Model Function 3 (Rubber Monoculture vs Rubber-Archidendron jiringa and Sandoricum koetjape)
+```{r}
+library(decisionSupport)
+
+third_decision_function <- function(x, varnames) {
+  
+  # Define each variable as vectors of 25 values 
+  
+  # corresponding to 25 years of simulation
+  
+  n_years <- 25
+
+  # Cost Variables
+  seedling.cost.rubber <- rep(0, n_years)
+  planting.cost <- rep(0, n_years)
+  land.clearing.rubber <- rep(0, n_years)
+  herbicide.cost.rubber <- rep(0, n_years)
+  fertilizer.cost.rubber <- rep(0, n_years)
+  fertilizing.cost <- rep(0, n_years)
+  harvest.cost.rubber <- rep(0, n_years)
+  equipment.cost <- rep(0, n_years)
+  harvesting.cost.rubber <- rep(0, n_years)
+  transportation.cost.rubber <- rep(0, n_years)
+  monitoring.cost.rubber <- rep(0, n_years)
+  benefit.land.clearing.rubber <- rep(0, n_years)
+  rubber.price <- rep(0, n_years)
+  spraying.cost.rubber <- rep(0, n_years)
+  
+  harvesting.cost.rb.ag2 <- rep(0, n_years)
+
+  planting.cost.chilli <- rep(0, n_years)
+  harvesting.cost.chilli <- rep(0, n_years)
+  planting.cost.cassava <- rep(0, n_years)
+  harvesting.cost.cassava <- rep(0, n_years)
+  seedling.cost.banana <- rep(0, n_years)
+  planting.cost.banana <- rep(0, n_years)
+  harvesting.cost.banana <- rep(0, n_years)
+  
+  # Benefit Variables
+  cassava.price <- rep(0, n_years)
+  cassava.yield <- rep(0, n_years)
+  banana.price <- rep(0, n_years)
+  banana.yield <- rep(0, n_years)
+  chilli.price <- rep(0, n_years)
+  chilli.yield <- rep(0, n_years)
+  
+  jn.price <- rep(0, n_years)
+  sn.price <- rep(0, n_years)
+  sn.wood.price <- rep(0, n_years)
+  sn.wood.yield <- rep(0, n_years)
+  
+  # Risk variables
+  
+  yield.rubber.risk <- rep(0, n_years)
+  yield.jengkol.risk <- rep(0, n_years)
+  yield.sentul.risk <- rep(0, n_years)
+  
+  yield.cassava.risk <- rep(0, n_years)
+  yield.chili.risk <- rep(0, n_years)
+  yield.banana.risk <- rep(0, n_years)
+  
+  # Simulate the chance of risk events occurring during the simulation period
+  
+  rubber.risk <- chance_event(chance = rubber_risk,  value_if = 1, n_years)
+  jengkol.risk <- chance_event(chance = jengkol_risk, value_if = 1, n_years)
+  sentul.risk <- chance_event(chance = jengkol_risk, value_if = 1, n_years)
+  
+  rubber.risk[1:n_years] <- vv(rubber_risk, CV_risk, n_years)
+  sentul.risk[1:n_years] <- vv(sentul_risk, CV_risk, n_years)
+  jengkol.risk[1:n_years] <- vv(jengkol_risk, CV_risk, n_years)
+  
+  yield.rubber.risk[1:n_years] <- vv(yield_rubber_risk, CV_risk, n_years)
+  yield.sentul.risk[1:n_years] <- vv(yield_sentul_risk, CV_risk, n_years)
+  yield.jengkol.risk[1:n_years] <- vv(yield_jengkol_risk, CV_risk, n_years)
+  
+  cassava.risk <- chance_event(chance = cassava_risk, value_if = 1, n_years)
+  chili.risk <- chance_event(chance = chili_risk, value_if = 1, n_years)
+  banana.risk <- chance_event(chance = banana_risk, value_if = 1, n_years)
+  
+  cassava.risk[1:n_years] <- vv(cassava_risk, CV_risk, n_years)
+  chili.risk[1:n_years] <- vv(chili_risk, CV_risk, n_years)
+  banana.risk[1:n_years] <- vv(banana_risk, CV_risk, n_years)
+  
+  yield.cassava.risk[1:n_years] <- vv(yield_cassava_risk, CV_risk, n_years)
+  yield.chili.risk[1:n_years] <- vv(yield_chili_risk, CV_risk, n_years)
+  yield.banana.risk[1:n_years] <- vv(yield_banana_risk, CV_risk, n_years)
+  
+  # Calculate the system cost of rubber
+    
+  # Seedling cost
+  seedling.cost.rubber[1] <- vv(seedling_cost_rubber, CV_cost, 1)
+  seedling.cost.rubber[2:n_years] <- 0
+  
+  # Planting cost rubber 
+  planting.cost[1] <- vv(planting_cost, CV_cost, 1)
+  planting.cost[2:n_years] <- 0
+  
+  # Land clearing rubber
+  land.clearing.rubber[1] <- vv(land_clearing_cost_rubber, CV_cost, 1)
+  land.clearing.rubber[2:n_years] <- 0
+  
+  # Benefits of Land Clearing from Wood Harvesting
+  benefit.land.clearing.rubber[1] <- vv(benefit_land_clearing, var_CV, 1)
+  benefit.land.clearing.rubber[2:n_years] <- 0
+  
+  # Herbicide cost rubber
+  herbicide.cost.rubber[1:n_years] <- vv(herbicide_cost_rubber, CV_cost, n_years)
+  
+  # Spraying cost rubber
+  spraying.cost.rubber[1:n_years] <- vv(spraying_cost_rubber, CV_cost, n_years)
+  
+  # Fertilizer cost rubber
+  fertilizer.cost.rubber[1:2] <- vv(fertilizer_cost_rubber, CV_cost, 2)
+  fertilizer.cost.rubber[3:n_years] <- 0
+  
+  # Fertilizing cost rubber
+  fertilizing.cost[1:2] <- vv(fertilizing_cost_rubber, CV_cost, 2)
+  fertilizing.cost[3:n_years] <- 0
+  
+  # Transportation cost - monitoring before harvesting
+  monitoring.cost.rubber[1:5] <- vv(monitoring_cost, CV_cost, 5)
+  monitoring.cost.rubber[6:n_years] <- 0
+  
+  # Equipment cost including 3 and 5 year replacement
+  equipment.cost[1] <- vv(equipment_cost_basic, CV_cost, 1)
+  equipment.cost[2:5] <- 0
+  equipment.cost[6] <- vv(equipment_cost_installment, CV_cost, 1)
+  equipment.cost[7:9] <- 0 
+  equipment.cost[10] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[11] <- 0 
+  equipment.cost[12] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[13:15] <- 0 
+  equipment.cost[16] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[17] <- 0 
+  equipment.cost[18] <- vv(equipment_cost_maintenance_5, CV_cost, 1)
+  equipment.cost[19:21] <- 0 
+  equipment.cost[22] <- vv(equipment_cost_maintenance_3, CV_cost, 1)
+  equipment.cost[23:25] <- 0 
+  
+  # Harvest cost rubber
+  harvesting.cost.rubber[1:5] <- 0
+  harvesting.cost.rubber[6:n_years] <- vv(harvesting_cost_rubber, CV_cost, n_years - 5)
+  
+  # Transportation cost for harvesting rubber
+  transportation.cost.rubber[1:5] <- 0
+  transportation.cost.rubber[6:n_years] <- vv(transportation_cost, CV_cost, n_years - 5)
+  
+  # Harvesting cost rubber (including Post Harvest Treatment - sulfuric acid)
+  harvest.cost.rubber[1:5] <- 0
+  harvest.cost.rubber[6:n_years] <- vv(harvesting_equipment_treatment_rubber, CV_cost, n_years - 5)
+  
+  # Rubber price
+  rubber.price[1:5] <- 0
+  rubber.price[6:n_years] <- vv(rubber_price, CV_rubber_price, n_years - 5)
+  
+  # Sandoricum k. price
+  sn.price[1:24] <- 0
+  sn.price[24:n_years] <- vv(sentul_price, CV_sondrium_price, n_years - 23)
+  
+  # Wood Sandoricum k. price
+  sn.wood.price[1:24] <- 0
+  sn.wood.price[24:n_years] <- vv(wood_sentul_price, CV_sondrium_price, n_years - 23)
+  
+  # Wood Sandoricum k. yield
+  sn.wood.yield[1:24] <- 0
+  sn.wood.yield[24:n_years] <- vv(wood_sentul_yield, var_CV, n_years - 23)
+  
+  # Archidendron jiringa price
+  jn.price[1:3] <- 0
+  jn.price[4:n_years] <- vv(jengkol_price, CV_archidendron_price, n_years - 3)
+  
+  # Harvesting cost Archidendron jiringa 
+  harvesting.cost.rb.ag2[1:4] <- 0
+  harvesting.cost.rb.ag2[5:n_years] <- vv(harvesting_cost_ag2, CV_cost, n_years - 4)
+  
+  # Archidendron jiringa yield using Gompertz curve
+  
+  jn_yield <- gompertz_yield(max_harvest = max_jn_harvest, 
+                            time_to_first_yield_estimate = immature_jn_est, 
+                            time_to_second_yield_estimate = mature_jn_est,
+                            first_yield_estimate_percent = immature_jn_yield_est,
+                            second_yield_estimate_percent = mature_jn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0,
+                            no_yield_before_first_estimate = TRUE)
+    
+  jn_yield_risk <- jn_yield*(1- jengkol.risk*yield.jengkol.risk)
+  
+  tot_jn_benefit <- jn_yield_risk * jn.price
+  
+  # Sandoricum k. yield at the end of life cycle (wood)
+  
+  sn_yield <- gompertz_yield(max_harvest = max_sn_harvest, 
+                            time_to_first_yield_estimate = immature_sn_est, 
+                            time_to_second_yield_estimate = mature_sn_est,
+                            first_yield_estimate_percent = immature_sn_yield_est,
+                            second_yield_estimate_percent = mature_sn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  sn_yield_risk <- sentul_yield*(1-sentul.risk*yield.sentul.risk)
+  
+  tot_sn_benefit <- (sn_yield_risk * sn.price) + (sn.wood.yield * sn.wood.price)
+  
+  # Benefits of rubber using Gompertz curve 
+  rb_yield <- gompertz_yield(max_harvest = max_rubber_harvest, 
+                            time_to_first_yield_estimate = immature_rubber_est, 
+                            time_to_second_yield_estimate = mature_rubber_est,
+                            first_yield_estimate_percent = immature_rubber_yield_est,
+                            second_yield_estimate_percent = mature_rubber_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  rb_yield_risk <- rb_yield*(1-rubber.risk*yield.rubber.risk)
+  
+  tot_rb_benefit <- rb_yield_risk * rubber.price
+  
+  # Chili and Cassava at first year, Banana at the second year of system
+  
+  chilli.yield[1] <- vv(chilli_yield, var_CV, 1)
+  chilli.yield[2:n_years] <- 0
+  
+  chilli.price[1] <- vv(chilli_price, CV_chili_price, 1)
+  chilli.price[2:n_years] <- 0
+  
+  planting.cost.chilli[1] <- vv(planting_cost_chilli, CV_cost, 1)
+  planting.cost.chilli[2:n_years] <- 0
+  
+  harvesting.cost.chilli[1] <- vv(harvesting_cost_chilli, CV_cost, 1)
+  harvesting.cost.chilli[2:n_years] <- 0
+  
+  planting.cost.cassava[1] <- vv(planting_cost_cassava, CV_cost, 1)
+  planting.cost.cassava[2:n_years] <- 0
+  
+  harvesting.cost.cassava[1] <- vv(harvesting_cost_cassava, CV_cost, 1)
+  harvesting.cost.cassava[2:n_years] <- 0
+  
+  cassava.price[1] <- vv(cassava_price, CV_cassava_price, 1)
+  cassava.price[2:n_years] <- 0
+  
+  cassava.yield[1] <- vv(cassava_yield, var_CV, 1)
+  cassava.yield[2:n_years] <- 0
+  
+  seedling.cost.banana <- vv(seedling_cost_banana, CV_cost, 1)
+  seedling.cost.banana[2:n_years] <- 0
+  
+  planting.cost.banana[1] <- 0
+  planting.cost.banana[2] <- vv(planting_cost_banana, CV_cost, 1)
+  planting.cost.banana[3:n_years] <- 0
+  
+  harvesting.cost.banana[1] <- 0
+  harvesting.cost.banana[2] <- vv(harvesting_cost_banana, CV_cost, 1)
+  harvesting.cost.banana[3:n_years] <- 0
+  
+  banana.yield[1] <- 0
+  banana.yield[2] <- vv(banana_yield, var_CV, 1)
+  banana.yield[3:n_years] <- 0
+  
+  banana.price[1] <- 0
+  banana.price[2] <- vv(banana_price, CV_banana_price, 1)
+  banana.price[3:n_years] <- 0
+  
+  
+  chili_yield_risk <-  chilli.yield*(1- chili.risk*yield.chili.risk)
+
+  tot_chilli_benefit <- (chili_yield_risk* chilli.price) - planting.cost.chilli - harvesting.cost.chilli
+                           
+  cassava_yield_risk <- cassava_yield * (1- cassava.risk*yield.cassava.risk)
+  
+  tot_cassava_benefit <-  (cassava_yield_risk * cassava.price) - planting.cost.cassava - harvesting.cost.cassava
+  
+  banana_yield_risk <- banana.yield * (1- banana.risk*yield.banana.risk) 
+  
+  tot_banana_benefit <- (banana_yield_risk * banana.price) - seedling.cost.banana - planting.cost.banana - harvesting.cost.banana
+  
+  # Total Benefit of Rubber monoculture
+  total_rb_benefit <- ((tot_rb_benefit + benefit.land.clearing.rubber + tot_banana_benefit + tot_cassava_benefit + 
+                       tot_chilli_benefit) - seedling.cost.rubber - planting.cost - land.clearing.rubber - 
+                       fertilizer.cost.rubber - fertilizing.cost - equipment.cost - harvest.cost.rubber - 
+                       harvesting.cost.rubber - spraying.cost.rubber - herbicide.cost.rubber -
+                       transportation.cost.rubber)/cur_change
+
+  
+  # Total benefit Rubber-Archidendron jiring - Sandoricum k.
+  total_rb_ag3_benefit <- (tot_rb_benefit + benefit.land.clearing.rubber + tot_sn_benefit + tot_jn_benefit - 
+                             seedling.cost.rubber - planting.cost - land.clearing.rubber - fertilizer.cost.rubber - 
+                             fertilizing.cost - equipment.cost - harvest.cost.rubber - harvesting.cost.rubber - 
+                             spraying.cost.rubber - monitoring.cost.rubber - herbicide.cost.rubber - harvesting.cost.rb.ag2 -
+                             transportation.cost.rubber + tot_banana_benefit + tot_cassava_benefit + tot_chilli_benefit)/cur_change
+  
+
+  # NPV comparison
+  
+  NPV_rb <- discount(total_rb_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  NPV_rb_ag3 <- discount(total_rb_ag3_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # Benefit of choosing Rubber-Archidendron jiringa-Sandoricum k. over rubber monoculture
+  
+  tradeoff_benefit <- NPV_rb_ag3 - NPV_rb
+  
+  # Final NPV of the decision to choose
+  NPV_tradeoff <- discount(tradeoff_benefit, discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  
+  # In the return list, one can indicate any outcome they wish to see from the model
+  return(list(trade_off = NPV_tradeoff,
+              rb_ag3_NPV = NPV_rb_ag3,
+              rb_NPV = NPV_rb,
+              Cash_Flow_Rubber_Jengkol_Sentul = total_rb_ag3_benefit,
+              Cash_Flow_Rubber = total_rb_benefit))
+}
+```
+
+
+## Monte Carlo Simulation
+
+After the model function has been created, it is continued to the function "mCSimulation" from the decision Support Package. The simulation is run a total of 10000 times.
+
+```{r}
+library(decisionSupport)
+
+# Read the estimates from the CSV file
+estimate <- estimate_read_csv("input_rubber_based.csv")
+
+# Perform the Monte Carlo simulation Model 1
+mcSimulation_result1 <- mcSimulation(estimate = estimate,
+                                     model_function = first_decision_function,
+                                     numberOfModelRuns = 10000,
+                                     functionSyntax = "plainNames")
+
+# Perform the Monte Carlo simulation Model 2
+mcSimulation_result2 <- mcSimulation(estimate = estimate,
+                                     model_function = second_decision_function,
+                                     numberOfModelRuns = 10000,
+                                     functionSyntax = "plainNames")
+
+# Perform the Monte Carlo simulation Model 3
+mcSimulation_result3 <- mcSimulation(estimate = estimate,
+                                     model_function = third_decision_function,
+                                     numberOfModelRuns = 10000,
+                                     functionSyntax = "plainNames")
+```
+## Cashflow
+
+### Plot cash flow Rubber-Areca catechu and Durio zibethinus (Cash flow 1)
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 1 Cash flow Rubber-Areca nut-Durian**"}
+plot_cashflow(mcSimulation_object = mcSimulation_result1,
+                        color_25_75 = "honeydew3",
+                        color_5_95 = "honeydew2",
+                        color_median = "blue",
+                        cashflow_var_name = "Cash_Flow_Rubber_Pinang_Durian")
+```
+
+
+
+### Plot cash flow Rubber-Archidendron jiringa and Parkia speciosa
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 2. Cash flow Rubber-Archidendron jiringa and Parkia speciosa**",}
+plot_cashflow(mcSimulation_object = mcSimulation_result2,
+                        color_25_75 = "bisque2",
+                        color_5_95 = "bisque",
+                        color_median = "blue",
+                        cashflow_var_name = "Cash_Flow_Rubber_Petai_Jengkol")
+```
+
+
+### Plot cash flow Rubber-Archidendron jiringa and Sandoricum koetjape
+```{r echo=TRUE, warning=FALSE,  fig.cap="**Graph. 3. Cash flow Rubber-Archidendron jiringa and Sandoricum koetjape**"}
+plot_cashflow(mcSimulation_object = mcSimulation_result3,
+                        color_25_75 = "plum",
+                        color_5_95 = "plum1",
+                        color_median = "blue",
+                        cashflow_var_name = "Cash_Flow_Rubber_Jengkol_Sentul")
+```
+
+
+### Plot cash flow Rubber Monoculture
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 4. Cash flow Rubber Monoculture**",}
+plot_cashflow(mcSimulation_object = mcSimulation_result2,
+              color_25_75 = "yellow3",
+              color_5_95 = "khaki",
+              color_median = "blue",
+              cashflow_var_name = "Cash_Flow_Rubber")
+```
+
+## NPV Comparison
+
+### NPV Rubber monoculture vs Rubber-Areca catechu and Durio zibethinus
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 5. NPV Comparison Rubber-Areca nut-Durian with Rubber Monoculture**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result1, 
+                                    vars = c("rb_NPV", "rb_ag_NPV"),
+                                    method = 'smooth_simple_overlay', 
+                                    bins = 150,
+                                    old_names = NULL,
+                                    new_names = NULL,
+                                    colors = c("darkorange2","darkolivegreen2"),
+                                    outlier_shape = ".",
+                                    x_axis_name = "Outcome distribution",
+                                    y_axis_name = "frequency",
+                                    base_size = 11)
+```
+
+
+### NPV Rubber monoculture vs Rubber, Archidendron jiringa-Parkia speciosa
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 6. NPV Comparison Rubber-Archidendron j-Parkia s. with Rubber Monoculture**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result2, 
+                                    vars = c("rb_NPV", "rb_ag2_NPV"),
+                                    method = 'smooth_simple_overlay', 
+                                    bins = 150,
+                                    old_names = NULL,
+                                    new_names = NULL,
+                                    colors = c("springgreen4","darkolivegreen2"),
+                                    outlier_shape = ".",
+                                    x_axis_name = "Outcome distribution",
+                                    y_axis_name = "frequency",
+                                    base_size = 11)
+```
+
+
+### NPV Rubber monoculture vs Rubber, Archidendron jiringa and Sandoricum koetjape
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 7. NPV Comparison Rubber-Archidendron j.-Sandoricum k. with Rubber Monoculture**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result3, 
+                                    vars = c("rb_NPV", "rb_ag3_NPV"),
+                                    method = 'smooth_simple_overlay', 
+                                    bins = 150,
+                                    old_names = NULL,
+                                    new_names = NULL,
+                                    colors = c("mediumorchid3","darkolivegreen2"),
+                                    outlier_shape = ".",
+                                    x_axis_name = "Outcome distribution",
+                                    y_axis_name = "frequency",
+                                    base_size = 11)
+```
+
+
+
+### Trade off Rubber-Areca catechu and Durio zibethinus over NPV Rubber monoculture 
+
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 8. Tradeoff Rubber-Areca-Durian over Rubber Mono**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result1, 
+                                    vars = "trade_off",
+                                    method = 'boxplot',
+                                    colors = "goldenrod1",
+                                    outlier_shape = 3)
+```
+
+
+### Trade off Rubber, Archidendron, and jiringa-Parkia speciosa over Rubber monoculture
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 8. Tradeoff Rubber-Archidendron-Parkia over Rubber Mono**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result2, 
+                                    vars = "trade_off",
+                                    method = 'boxplot',
+                                    colors = "aquamarine3",
+                                    outlier_shape = 3)
+```
+
+
+
+### Trade off Rubber, Archidendron jiringa and Sandoricum koetjape over NPV Rubber monoculture 
+```{r echo=FALSE, warning=FALSE, fig.cap="**Graph. 9. Tradeoff Rubber-Archidendron-Sondrium over Rubber Mono**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result3, 
+                                    vars = "trade_off",
+                                    method = 'boxplot',
+                                    colors = "plum3",
+                                    outlier_shape = 3)
+```
+
+## Variable Importance in Projection (VIP)
+
+```{r}
+pls_result <- plsr.mcSimulation(object = mcSimulation_result1,
+                                 resultName = names(mcSimulation_result1$y)[2], ncomp = 1)
+S <-plot_pls(pls_result, input_table = mod, threshold = 1)
+S
+```
+
+```{r}
+pls_result <- plsr.mcSimulation(object = mcSimulation_result2,
+                                 resultName = names(mcSimulation_result2$y)[2], ncomp = 1)
+R <-plot_pls(pls_result, input_table = mod, threshold = 1)
+R
+```
+
+```{r}
+pls_result <- plsr.mcSimulation(object = mcSimulation_result3,
+                                 resultName = names(mcSimulation_result3$y)[2], ncomp = 1)
+Sn <-plot_pls(pls_result, input_table = mod, threshold = 1)
+Sn
+```
+
+##  Expected Value of Perfect Information (EVPI)
+
+### Calculation EVPI
+```{r}
+# preparation EVPI
+mcSimulation_table <- data.frame(mcSimulation_result1$x, mcSimulation_result1$y[1:3])
+
+# calculation EVPI
+evpi <- multi_EVPI(mc = mcSimulation_table, first_out_var = "trade_off")
+
+# plot EVPI
+plot_evpi(evpi, decision_vars = "trade_off")
+```
+
+```{r}
+# preparation EVPI
+mcSimulation_table2 <- data.frame(mcSimulation_result2$x, mcSimulation_result2$y[1:3])
+
+# calculation EVPI
+evpi2 <- multi_EVPI(mc = mcSimulation_table2, first_out_var = "trade_off")
+
+# plot EVPI
+plot_evpi(evpi2, decision_vars = "trade_off")
+```
+
+```{r}
+# preparation EVPI
+mcSimulation_table3 <- data.frame(mcSimulation_result3$x, mcSimulation_result3$y[1:3])
+
+# calculation EVPI
+evpi3 <- multi_EVPI(mc = mcSimulation_table3, first_out_var = "trade_off")
+
+# plot EVPI
+plot_evpi(evpi3, decision_vars = "trade_off")
+```
+
+```{r}
+print(summary(mcSimulation_result1, probs=c(0.05,0.50,0.95)))
+print(summary(mcSimulation_result2, probs=c(0.05,0.50,0.95)))
+print(summary(mcSimulation_result3, probs=c(0.05,0.50,0.95)))
+```
+
