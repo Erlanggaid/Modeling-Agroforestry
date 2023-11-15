@@ -1,0 +1,77 @@
+label,variable,distribution,lower,upper
+Seedling Cost Rice (IDR),seedling_cost_rice,posnorm,120000,900000
+Planting Cost Rice (IDR),planting_cost_rice,posnorm,60000,900000
+Herbicide Cost Rice (IDR),herbicide_cost_rice,posnorm,100000,400000
+Plowing Cost Rice (IDR),plowing_cost_rice,posnorm,500000,750000
+Dolomite Cost Rice (IDR),dolomite_cost_rice,posnorm,60000,375000
+Land Clearing Rice Cost (IDR),clearing_cost_rice,posnorm,120000,600000
+Equipment cost  3 years replacement (IDR),equipment_cost_rice_3,posnorm,290000,550000
+Equipment cost  5 years replacement (IDR),equipment_cost_rice_5,posnorm,720000,910000
+Insecticide Cost Rice (IDR),insecticide_cost_rice,posnorm,75000,250000
+Spraying Cost Rice (IDR),spraying_cost_rice,posnorm,60000,200000
+Fertilizer Cost (IDR),fertilizer_cost_rice, posnorm ,650000,4250000
+Fertilizing Cost Rice (IDR),fertilizing_cost_rice,posnorm,120000,600000
+Harvesting Cost Rice (IDR),harvesting_cost_rice,posnorm,70000,600000
+Packaging Cost Rice (IDR),packaging_cost_rice,posnorm,200000,300000
+Milling cost rice (IDR),milling_cost_rice,posnorm,900000,1800000
+Rice Production (Kg),rice_production,posnorm,1000,2000
+Rice Price (IDR),rice_price,posnorm,7000,9000
+Rice Benefit (IDR),rice_benefit,posnorm,3500000,18000000
+Life spans (Years),n_years,const,25,25
+Discount rate (%),discount_rate,posnorm,4,15
+Percentage Rice Risk Occur (%),p_rice_risk_occur,tnorm_0_1,0.2,0.6
+Percentage Rice Yield Loss (%),p_rice_yield_loss,posnorm,0.1,1
+Transportation cost for monitoring (IDR),transportation_cost,posnorm,240000,360000
+Planting Cost Rubber (IDR),planting_cost_rubber,posnorm,400000,2250000
+Field Protection (IDR),field_protection_rice,posnorm,3140000,4400000
+Dike Construction for rice (IDR),dike_construction_rice,posnorm,24000000,32000000
+Percentage Coconut Risk Occur (%),p_coco_risk_occur,tnorm_0_1,0.1,0.5
+Percentage Coconut Yield Loss (%),p_coco_yield_loss,posnorm,0.3,0.7
+Time To reach Immature Coconut (Years),immature_coco_est,const,4,4
+Time To reach Mature Coconut (Years),mature_coco_est,const,8,8
+Maximum Coconut Estimation Yield (Kg),max_coco_harvest,posnorm,1500,1620
+Coconut production (Kg),coco_yield, posnorm ,4000,4950
+Seedling Cost Coconut (IDR),seedling_cost_coco, posnorm ,400000,900000
+Coconut price (Rp/Pcs),coco_price, posnorm ,1000,5000
+Percentation Immature Yield Coconut (%),immature_coco_yield_est,posnorm,20,50
+Percentation Mature Yield Coconut (%),mature_coco_yield_est,posnorm,60,80
+Planting Cost Coconut (IDR),planting_cost_coco,posnorm,300000,900000
+Fertilizer Cost Coconut before first harvesting (IDR),fertilizer_cost_coco_pre,posnorm,12000,75000
+Fertilizer Cost Coconut after first harvesting (IDR),fertilizer_cost_coco_post,posnorm,28000,100000
+Harvesting Cost Coconut (IDR),harvesting_cost_coco,posnorm,2400000,5400000
+Percentage Areca (Pinang) Risk Occur (%),p_pinang_risk_occur,tnorm_0_1,0.1,0.5
+Percentage Areca (Pinang) Yield Loss (%),p_pinang_yield_loss,posnorm,0.2,0.7
+Time To reach Immature (First Yield) Areca (Pinang) (Years),immature_pn_est,const,3,3
+Time To reach Mature Areca (Pinang) (Years),mature_pn_est,const,6,6
+Maximum Areca (Pinang) Estimation Yield (Kg),max_pn_harvest,posnorm,360,400
+Areca (Pinang) production (kg),pinang_yield, posnorm ,360,400
+Seedling Cost Areca (IDR),seedling_cost_pinang, posnorm ,108000,200000
+Areca (Pinang) price (IDR),pinang_price, posnorm ,10000,15000
+Percentation Immature Yield Areca (Pinang) (%),immature_pn_yield_est,posnorm,40,60
+Percentation Mature Yield Areca (Pinang) (%),mature_pn_yield_est,posnorm,70,80
+Seedling Cost Areca (Pinang) Mono (IDR),seedling_cost_png, posnorm ,375000,675000
+Planting Cost Areca (Pinang) (IDR),planting_cost_png,posnorm,300000,900000
+Fertilizer Cost Areca (Pinang) before first harvesting (IDR),fertilizer_cost_png_pre,posnorm,30000,225000
+Fertilizer Cost Areca (Pinang) Mono after first harvesting (IDR),fertilizer_cost_png_post,posnorm,70000,300000
+Harvesting Cost Areca (Pinang) (IDR),harvesting_cost_png,posnorm,1200000,3600000
+Areca (Pinang) Production (Kg),png_yield, posnorm ,1250,1350
+Maximum Areca (Pinang) Estimation Yield (Kg),max_png_harvest,posnorm,1250,1350
+Planting Cost Rice (IDR),planting_cost_rice_nfl,posnorm,60000,600000
+Fertilizing Cost Rice (IDR),fertilizing_cost_rice_nfl,posnorm,60000,400000
+Fertilizing Cost Coconut Areca (IDR),fertilizing_cost_coco_pinang,posnorm,60000,100000
+Fertilizing Cost Areca (Pinang) (IDR),fertilizing_cost_png,posnorm,60000,100000
+Land Clearing Rice Cost (IDR),clearing_cost_rice_nfl,posnorm,120000,400000
+Maize Yield (Kg),maize_yield,posnorm,300,500
+Maize Price per Kg (IDR),maize_price,posnorm,3500,4500
+"Planting, Harvesting and Fertilizer Cost for Maize (IDR)",maize_cost,posnorm,530000,1100000
+Decay Rate Maize (%),decay_rate_maize,posnorm,0.05,0.1
+Percentage Risk Maize Occur (%),p_maize_risk_occur,tnorm_0_1,0.2,0.6
+Percentage Yield Loss Maize (%),p_maize_yield_loss,posnorm,0.1,1
+Cost Variation,CV_cost,posnorm,10,20
+Areca Price Variation,CV_areca_price,posnorm,10,40
+Maize Price Variation ,CV_maize_price,posnorm,10,30
+Rice Price Variation ,CV_rice_price,posnorm,10,30
+Coconut Price Variation,CV_coco_price,posnorm,10,30
+Risk Variation ,CV_risk,posnorm,2,12
+CV Variation,var_CV,posnorm,20,50
+IDR to USD,cur_change,const,15141.3,15141.3
