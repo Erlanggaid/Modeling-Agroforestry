@@ -1,0 +1,36 @@
+---
+title: "Tradeoff Simulation _Rice-Based"
+author: "Erlangga"
+date: "11/30/2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(PairedData)
+library(ggplot2)
+library(agricolae)
+library(emmeans)
+library(ggstatsplot)
+```
+
+```{r}
+Tradeoff_rice <- read.csv("tradeoff_rice.csv", header = TRUE)
+head(Tradeoff_rice)
+```
+
+```{r}
+ggplot(Tradeoff_rice, aes(x = Decision.Option, y = Trade_off, fill=factor(Desc))) +
+  geom_boxplot() + scale_fill_manual(values = c("#C0FF3E", "#00796B")) +
+      theme_light(base_size = 12.5)
+
+```
+
