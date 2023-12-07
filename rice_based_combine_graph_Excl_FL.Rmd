@@ -1,0 +1,483 @@
+---
+title: "Farming Systems Model Simulation in Baru Village"
+author: "Erlangga"
+date: "6/30/2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Model Function
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,error=FALSE}
+library(readr)
+mod <- read.csv("input_rice_based.csv", header = TRUE, sep = ",")
+knitr::kable(mod, "pipe", caption = "Input Table")
+```
+
+#### Model Function 1 (Rice Monoculture, Rice-maize-areca palm, and Rice-maize-coconut-areca palm)
+
+```{r}
+library(decisionSupport)
+
+first_decision_function <- function(x, varnames) {
+  
+  # Corresponding to 25 years of simulation
+  
+  n_years <- 25
+
+  # Define each variable as vectors of 25 values 
+  
+  # Cost variables
+  seedling.cost.rice <- rep(0, n_years)
+  land.clearing.rice <- rep(0, n_years)
+  herbicide.cost.rice <- rep(0, n_years)
+  fertilizer.cost.rice <- rep(0, n_years)
+  fertilizing.cost.rice <- rep(0, n_years)
+  spraying.cost.rice <- rep(0, n_years)
+  dolomite.cost.rice <- rep(0, n_years)
+  insecticide.cost.rice <- rep(0, n_years)
+  milling.cost.rice <- rep(0, n_years)
+  packaging.cost.rice <- rep(0, n_years)
+  plowing.cost.rice <- rep(0, n_years)
+  planting.cost.rice <- rep(0, n_years)
+  harvest.cost.rice <- rep(0, n_years)
+  equipment.cost.rice <- rep(0, n_years)
+  equipment.cost.rice.5 <- rep(0, n_years)
+  equipment.cost.rice.3 <- rep(0, n_years)
+  dike.cost.rice <- rep(0, n_years)
+  field.protection.rice <- rep(0, n_years)
+  
+  # Excluding shadow price family labour
+  # Fertilizing Cost, Land Clearing Cost, Planting Cost are included here, representing additional labours from non family members
+  
+  fertilizing.cost.rice.efl <- rep(0, n_years)
+  land.clearing.rice.efl <- rep(0, n_years)
+  planting.cost.rice.efl <- rep(0, n_years)
+  
+  
+  # Cost variables coco-Areca (pinang)
+  seedling.cost.coco <- rep(0, n_years)
+  planting.cost.coco <- rep(0, n_years)
+  harvesting.cost.coco.pn <- rep(0, n_years)
+  fertilizing.cost.coco.pn <- rep(0, n_years)
+  fertilizer.cost.coco <- rep(0, n_years)
+  seedling.cost.pn <- rep(0, n_years)
+  harvesting.cost.coco.pn <- rep(0, n_years)
+  
+  # Cost variable Areca nut (pinang)
+  seedling.cost.png <- rep(0, n_years)
+  planting.cost.png <- rep(0, n_years)
+  harvesting.cost.png <- rep(0, n_years)
+  fertilizing.cost.png <- rep(0, n_years)
+  fertilizer.cost.png <- rep(0, n_years)
+
+  
+  # Benefit variables Coco-Areca c
+  yield.coco.risk <- rep(0, n_years)
+  yield.rice.risk <- rep(0, n_years)
+  pn_yield <- rep(0, n_years)
+  pn.price <- rep(0, n_years)
+  yield.pinang.risk <- rep(0, n_years)
+  total_rice_benefit <- rep(0, n_years)
+  coco.yield <- rep(0, n_years)
+  coco.price <- rep(0, n_years)
+  
+  # Benefit variables Areca nut (Pinang)
+  png_yield <- rep(0, n_years)
+  pn.price <- rep(0, n_years)
+  yield.pinang.risk <- rep(0, n_years)
+  
+  # Simulate the chance of risk events occurring during the simulation period
+  coco.risk <- chance_event(chance = p_coco_risk_occur, value_if = 1, n_years)
+  pinang.risk <- chance_event(chance = p_pinang_risk_occur, value_if = 1, n_years)
+  rice.risk <- chance_event(chance = p_rice_risk_occur, value_if = 1, 
+                             value_if_not = 0, n_years)
+  maize.risk <- chance_event(p_maize_risk_occur, value_if = 1, n = n_years)
+  
+  pinang.risk[1:n_years] <- vv(p_pinang_risk_occur, CV_risk, n_years)
+  coco.risk[1:n_years] <- vv(p_coco_risk_occur, CV_risk, n_years)
+  rice.risk[1:n_years] <- vv(p_rice_risk_occur, CV_risk, n_years)
+  
+  yield.coco.risk[1:n_years] <- vv(p_coco_yield_loss, CV_risk, n_years)
+  yield.pinang.risk[1:n_years] <- vv(p_pinang_yield_loss, CV_risk, n_years)
+  yield.rice.risk[1:n_years] <- vv(p_rice_yield_loss, CV_risk, n_years)
+  
+  ### Calculate the system cost for rice
+  
+  # Seedling cost rice
+  seedling.cost.rice[1:n_years] <- vv(seedling_cost_rice, CV_cost, n_years)
+  
+  # Land clearing rice
+  land.clearing.rice[1:n_years] <- vv(clearing_cost_rice, CV_cost, n_years)
+  
+  # Herbicide cost rice
+  herbicide.cost.rice[1:n_years] <- vv(herbicide_cost_rice, CV_cost, n_years)
+  
+  # Fertilizer cost rice
+  fertilizer.cost.rice[1:n_years] <- vv(fertilizer_cost_rice, CV_cost, n_years)
+  
+  # Fertilizing cost rice
+  fertilizing.cost.rice[1:n_years] <- vv(fertilizing_cost_rice, CV_cost, n_years)
+  
+  # Spraying insecticide cost rice
+  spraying.cost.rice[1:n_years] <- vv(spraying_cost_rice, CV_cost, n_years)
+  
+  # Planting cost rice
+  planting.cost.rice[1:n_years] <- vv(planting_cost_rice, CV_cost, n_years)
+  
+  # Plowing cost rice
+  plowing.cost.rice[1:n_years] <- vv(plowing_cost_rice, CV_cost, n_years)
+  
+  # Land management Rice
+  dolomite.cost.rice[1:n_years] <- vv(dolomite_cost_rice, CV_cost, n_years)
+  
+  # Spraying insecticide cost rice
+  insecticide.cost.rice[1:n_years] <- vv(insecticide_cost_rice, CV_cost, n_years)
+  
+  # Milling cost rice
+  milling.cost.rice[1:n_years] <- vv(milling_cost_rice, CV_cost, n_years)
+  
+  # Packaging Cost rice
+  packaging.cost.rice[1:n_years] <- vv(packaging_cost_rice, CV_cost, n_years)
+  
+  # Harvesting cost 
+  harvest.cost.rice[1:n_years] <- vv(harvesting_cost_rice, CV_cost, n_years)
+  
+  # Land clearing rice excluding family labour
+  land.clearing.rice.efl[1:n_years] <- vv(clearing_cost_rice_nfl, 
+                                          CV_cost, n_years) 
+  
+  # Fertilizing cost rice excluding family labour
+  fertilizing.cost.rice.efl[1:n_years] <- vv(fertilizing_cost_rice_nfl, 
+                                             CV_cost, n_years) 
+  
+  # Planting cost rice excluding family labour
+  planting.cost.rice.efl[1:n_years] <- vv(planting_cost_rice_nfl, 
+                                          CV_cost, n_years) 
+  
+  # Dike cost 
+  dike.cost.rice[1] <- vv(dike_construction_rice, CV_cost, 1) 
+  dike.cost.rice[2:n_years] <- 0
+  
+  # Field Protection cost using barbed wire
+  field.protection.rice[1] <- vv(field_protection_rice, CV_cost, 1) 
+  field.protection.rice[2:9] <- 0
+  field.protection.rice[10] <- vv(field_protection_rice/2, CV_cost, 1) 
+  field.protection.rice[11:19] <- 0
+  field.protection.rice[20] <- vv(field_protection_rice/2, CV_cost, 1) 
+  field.protection.rice[21:n_years] <- 0
+  
+  # Equipment cost 3 years replacement
+  equipment.cost.rice.3[1] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[2:3] <- 0
+  equipment.cost.rice.3[5] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[6:8] <- 0
+  equipment.cost.rice.3[9] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[10:12] <- 0
+  equipment.cost.rice.3[13] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[14:16] <- 0
+  equipment.cost.rice.3[17] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[18:20] <- 0
+  equipment.cost.rice.3[21] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  equipment.cost.rice.3[22:24] <- 0
+  equipment.cost.rice.3[25] <- vv(equipment_cost_rice_3, CV_cost, 1)
+  
+  # Equipment cost 5 years replacement
+  equipment.cost.rice.5[1] <- vv(equipment_cost_rice_5, CV_cost, 1)
+  equipment.cost.rice.5[2:6] <- 0
+  equipment.cost.rice.5[7] <- vv(equipment_cost_rice_5, CV_cost, 1)
+  equipment.cost.rice.5[8:12] <- 0
+  equipment.cost.rice.5[13] <- vv(equipment_cost_rice_5, CV_cost, 1)
+  equipment.cost.rice.5[14:18] <- 0
+  equipment.cost.rice.5[19] <- vv(equipment_cost_rice_5, CV_cost, 1)
+  equipment.cost.rice.5[20:24] <- 0
+  equipment.cost.rice.5[25] <- vv(equipment_cost_rice_5, CV_cost, 1)
+  
+  equipment.cost.rice <- equipment.cost.rice.5 + equipment.cost.rice.3
+  
+  
+  # Calculate the system benefit of rice
+  
+  rice.yield.risk <- vv(rice_production*(1-rice.risk*yield.rice.risk), 
+                        CV_risk, n_years)
+  
+  tot_rice_benefit <- vv(rice.yield.risk * rice_price, 
+                         CV_rice_price, n_years) 
+  
+  # Calculate the NPV of rice
+  
+  
+  # Total Benefit Rice (Family labour is excluded from the calculation)
+  total_rice_benefit.efl <- ((tot_rice_benefit - seedling.cost.rice - 
+                              land.clearing.rice.efl - herbicide.cost.rice - 
+                              fertilizer.cost.rice - harvest.cost.rice - 
+                              planting.cost.rice.efl - plowing.cost.rice - 
+                              equipment.cost.rice - dolomite.cost.rice - 
+                              insecticide.cost.rice - milling.cost.rice - 
+                              packaging.cost.rice - fertilizing.cost.rice.efl - 
+                              field.protection.rice)*2)/cur_change
+  
+  
+  # Calculate rice agroforestry
+    
+  # Coconut yield 
+  seedling.cost.coco[1] <- vv(seedling_cost_coco, CV_cost, 1) 
+  seedling.cost.coco[2:n_years] <- 0
+  
+  # Fertilizer cost coco
+  fertilizer.cost.coco[1:4] <- vv(fertilizer_cost_coco_pre, CV_cost, 4) 
+  fertilizer.cost.coco[5:n_years] <- vv(fertilizer_cost_coco_post, 
+                                        CV_cost, n_years - 4) 
+  
+  # Fertilizing cost coconut-areca nut (pinang)
+  fertilizing.cost.coco.pn[1:4] <- vv(fertilizing_cost_coco_pinang, CV_cost, 4) 
+  fertilizing.cost.coco.pn[5:n_years] <- vv(fertilizing_cost_coco_pinang, 
+                                            CV_cost, n_years - 4) 
+
+  # Planting cost coconut
+  planting.cost.coco[1] <- vv(planting_cost_coco, CV_cost, 1) 
+  planting.cost.coco[2:n_years] <- 0
+  
+  # Harvesting cost coconut areca nut (pinang)
+  harvesting.cost.coco.pn[1:3] <- 0
+  harvesting.cost.coco.pn[4:n_years] <- vv(harvesting_cost_coco, 
+                                           CV_cost, n_years - 3) 
+  
+  # Coconut Price
+  coco.price[1:n_years] <- vv(coco_price, CV_coco_price, n_years) 
+  
+  
+  cc_yield <- gompertz_yield(max_harvest = max_coco_harvest, 
+                            time_to_first_yield_estimate = immature_coco_est, 
+                            time_to_second_yield_estimate = mature_coco_est,
+                            first_yield_estimate_percent = immature_coco_yield_est,
+                            second_yield_estimate_percent = mature_coco_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  cc_yield_risk <- cc_yield*(1-coco.risk*yield.coco.risk)
+  
+  tot_cc_benefit <- (cc_yield_risk * coco.price) 
+  
+  # Calculate Areca nut (Pinang) System
+  
+  # seedling cost Areca nut (Pinang) System 1
+  
+  seedling.cost.pn[1] <- vv(seedling_cost_pinang, CV_cost, 1) 
+  seedling.cost.pn[2:n_years] <- 0
+  
+  # Areca nut (Pinang)Price
+  pn.price[1:n_years] <- vv(pinang_price, CV_areca_price, n_years) 
+  
+  # Areca nut (Pinang) yield
+  pn_yield <- gompertz_yield(max_harvest = max_pn_harvest, 
+                            time_to_first_yield_estimate = immature_pn_est, 
+                            time_to_second_yield_estimate = mature_pn_est,
+                            first_yield_estimate_percent = immature_pn_yield_est,
+                            second_yield_estimate_percent = mature_pn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  pn_yield_risk <- pn_yield*(1-pinang.risk*yield.pinang.risk)
+  
+  tot_pn_benefit <- (pn_yield_risk * pn.price) 
+  
+  # Calculate rice agroforestry system 2
+  
+  # Areca nut (Pinang) cost
+  
+  seedling.cost.png[1] <- vv(seedling_cost_png, CV_cost, 1)
+  seedling.cost.png[2:n_years] <- 0
+  
+  # Fertilizer cost of Areca nut (Pinang)
+  fertilizer.cost.png[1:3] <- vv(fertilizer_cost_png_pre, CV_cost, 3)
+  fertilizer.cost.png[4:n_years] <- vv(fertilizer_cost_png_post, CV_cost, n_years - 3)
+  
+  # Fertilizing cost of Areca nut (Pinang)
+  fertilizing.cost.png[1:3] <- vv(fertilizing_cost_png, CV_cost, 3)
+  fertilizing.cost.png[4:n_years] <- vv(fertilizing_cost_png, CV_cost, n_years - 3)
+  
+  # Planting cost Areca nut (Pinang)
+  planting.cost.png[1] <- vv(planting_cost_png, CV_cost, 1)
+  planting.cost.png[2:n_years] <- 0
+  
+  # Harvesting cost of Areca nut (Pinang)
+  harvesting.cost.png[1:3] <- 0
+  harvesting.cost.png[4:n_years] <- vv(harvesting_cost_png, CV_cost, n_years - 3)
+  
+  
+  # Areca nut (Pinang) Price
+  pn.price[1:n_years] <- vv(pinang_price, CV_areca_price, n_years)
+  
+  
+  png_yield <- gompertz_yield(max_harvest = max_png_harvest, 
+                            time_to_first_yield_estimate = immature_pn_est, 
+                            time_to_second_yield_estimate = mature_pn_est,
+                            first_yield_estimate_percent = immature_pn_yield_est,
+                            second_yield_estimate_percent = mature_pn_yield_est,
+                            n_years = n_years, 
+                            var_CV = 0, 
+                            no_yield_before_first_estimate = TRUE)
+  
+  png_yield_risk <- png_yield*(1-pinang.risk*yield.pinang.risk)
+  
+  tot_png_benefit <- png_yield_risk * pn.price
+  
+  # Maize along the dike
+  
+  time <- 1:n_years
+  decay_speed_maize <- -log(1-decay_rate_maize)
+  AF_maize <- maize_yield*exp(-decay_speed_maize*(time-1))
+  tot_AF_maize <- vv(maize_yield*(1-maize.risk*p_rice_yield_loss), CV_risk, n_years)
+  AF_maize_revenue <- (tot_AF_maize*vv(maize_price, CV_maize_price, n_years)) 
+  
+  AF_maize_costs <- vv(maize_cost, CV_cost, n_years) 
+  
+  AF_maize_benefit <- ((AF_maize_revenue-AF_maize_costs)*2) 
+  
+  
+  # Calculate NPV of rice agro forestry (cocobut-areca nut(pinang-maize))
+  
+  # Total Benefit Coco-Areca c (Family Labour is excluded in the calculation)
+  total_rice_ccpn_benefit.efl <- ((total_rice_benefit.efl + tot_cc_benefit  + 
+                                  tot_pn_benefit + AF_maize_benefit) - 
+                                  seedling.cost.coco - dike.cost.rice - 
+                                  field.protection.rice - 
+                                  fertilizer.cost.coco - 
+                                  seedling.cost.pn)/cur_change
+  
+  #Total Benefit Rice-Areca nut-maize (Family Labour is excluded in the calculation)
+  total_rice_pn_benefit.efl <- (total_rice_benefit.efl + tot_png_benefit + 
+                               AF_maize_benefit - dike.cost.rice - 
+                               field.protection.rice - fertilizer.cost.png - 
+                               seedling.cost.png)/cur_change
+                                                 
+  # NPV comparison
+  
+  # NPV Rice-Coconut-Areca nut-maize (Family Labour is excluded in the calculation)
+  NPV_rice_ccpn.efl <- discount(total_rice_ccpn_benefit.efl, 
+                                discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # NPV Rice-Areca nut-maize (Family Labour is excluded in the calculation)
+  NPV_rice_pn.efl <- discount(total_rice_pn_benefit.efl, 
+                          discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # NPV Rice (Family Labour is excluded in the calculation)
+  NPV_rice.efl <- discount(total_rice_benefit.efl, 
+                           discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # Benefit of choosing rice-coconut-Areca nut-maize with dike over rice monoculture without dike
+  tradeoff_benefit.fl1 <- NPV_rice_ccpn.efl - NPV_rice.efl
+  
+    
+  # Benefit of choosing rice-Areca nut-maize with dike over rice monoculture without dike
+  tradeoff_benefit.fl2 <- NPV_rice_pn.efl - NPV_rice.efl
+  
+  # Final NPV of the decision to choose Rice-Areca nut-maize over Rice Monoculture
+  NPV_tradeoff.fl1 <- discount(tradeoff_benefit.fl1, 
+                              discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # Final NPV of the decision to choose Rice-Areca nut-maize over Rice Monoculture
+  NPV_tradeoff.fl2 <- discount(tradeoff_benefit.fl2, 
+                              discount_rate = discount_rate, calculate_NPV = TRUE)
+  
+  # In the return list, one can indicate any outcome they wish to see from the model
+  return(list(trade_off_FL1 = NPV_tradeoff.fl1,
+              trade_off_FL2 = NPV_tradeoff.fl2,
+              rice_ccpn.efl_NPV = NPV_rice_ccpn.efl,
+              rice_pn.efl_NPV = NPV_rice_pn.efl,
+              rice.efl_NPV = NPV_rice.efl,
+              Cash_Flow_Rice_Excl_FL = total_rice_benefit.efl,
+              Cash_Flow_Rice_Pinang_Coco_Excl_FL = total_rice_ccpn_benefit.efl,
+              Cash_Flow_Rice_Pinang_Excl_FL = total_rice_pn_benefit.efl))
+}
+```
+
+## Monte Carlo Simulation
+
+After the model function has been created, it is continued to the function "mCSimulation" from the decision Support Package.
+The simulation is run a total of 10000 times.
+
+```{r}
+library(decisionSupport)
+
+# Read the estimates from the CSV file
+estimate <- estimate_read_csv("input_rice_based.csv")
+
+# Perform the Monte Carlo simulation 1
+mcSimulation_result1 <- mcSimulation(estimate = estimate,
+                                     model_function = first_decision_function,
+                                     numberOfModelRuns = 10000,
+                                     functionSyntax = "plainNames")
+```
+
+
+## Cashflow
+
+```{r echo=TRUE, fig.cap="**Graph. 1 Cashflow Rice-maize-Coconut-Areca palm (Excluding Family Labour Calculation)**"}
+plot_cashflow(mcSimulation_object = mcSimulation_result1,
+              color_25_75 = "darkolivegreen4",
+              color_5_95 = "darkolivegreen1",
+              color_median = "blue",
+              cashflow_var_name = "Cash_Flow_Rice_Pinang_Coco_Excl_FL")
+```
+
+
+```{r echo=TRUE, fig.cap="**Graph 2. Cashflow Rice-maize-areca palm (Excluding Family Labour Calculation)**",}
+plot_cashflow(mcSimulation_object = mcSimulation_result1,
+              color_25_75 = "lightgoldenrod3",
+              color_5_95 = "lightgoldenrod1",
+              color_median = "blue",
+              cashflow_var_name = "Cash_Flow_Rice_Pinang_Excl_FL")
+```
+
+
+```{r echo=TRUE, fig.cap="**Graph. 3 Cashflow Rice Monoculture (Excluding Family Labour Calculation**",}
+plot_cashflow(mcSimulation_object = mcSimulation_result1, 
+              color_25_75 = "grey60",
+              color_5_95 = "grey80",
+              color_median = "blue",
+              cashflow_var_name = "Cash_Flow_Rice_Excl_FL")
+
+```
+
+
+## Comparisson
+
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 4 NPV comparison Rice-based agroforestry and Rice Monoculture (Excluding Family Labour Calculation)**",}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result1, 
+                                    vars = c("rice.efl_NPV", "rice_ccpn.efl_NPV", "rice_pn.efl_NPV"),
+                                    method = 'smooth_simple_overlay', 
+                                    bins = 150,
+                                    old_names = NULL,
+                                    new_names = NULL,
+                                    colors = c("darkgreen","greenyellow", "orange"),
+                                    outlier_shape = ".",
+                                    x_axis_name = "Outcome distribution",
+                                    y_axis_name = "frequency",
+                                    base_size = 11)
+```
+
+```{r echo=TRUE, warning=FALSE, fig.cap="**Graph. 6 Tradeoff Rice-based agroforestry over Rice Monoculture (Excluding Family Labour Calculation)**"}
+decisionSupport::plot_distributions(mcSimulation_object = mcSimulation_result1, 
+                                    vars = c("trade_off_FL1", "trade_off_FL2"),
+                                    method = 'boxplot',
+                                    colors = c("greenyellow","khaki2"),
+                                    outlier_shape = 3)
+```
+
+```{r}
+# Summary Gain and Loss
+print(mcSimulation_result1, probs=c(0.05,0.50,0.95))
+print(mcSimulation_result1)
+
+write.csv(mcSimulation_result1,"simulation.csv")
+```
+
