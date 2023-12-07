@@ -1,0 +1,41 @@
+---
+title: "Tradeoff Simulation Rubber Based"
+author: "Erlangga"
+date: "11/30/2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(PairedData)
+library(ggplot2)
+library(agricolae)
+library(emmeans)
+library(ggstatsplot)
+```
+
+```{r}
+Tradeoff_rubber <- read.csv("tradeoff_rubber_based.csv", header = TRUE)
+Tradeoff_rb <- Tradeoff_in
+Tradeoff_rb$Decision.Option <- factor(Tradeoff_rb$Decision.Option,     # Reorder factor levels
+                         c("rubber-areca palm-durian", "rubber-jengkol-petai", "rubber-jengkol-koetjape"))
+
+Tradeoff_rb
+```
+
+```{r}
+ggplot(Tradeoff_rb, aes(x = Decision.Option, y = Tradeoff, fill=factor(Desc))) +
+  geom_boxplot() + scale_fill_manual(values = c("#C0FF3E", "#00796B")) +
+      theme_light(base_size = 12.5)
+
+
+```
+
